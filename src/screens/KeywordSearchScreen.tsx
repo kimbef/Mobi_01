@@ -21,8 +21,19 @@ import ExportActions from '../components/ExportActions';
 import { useKeywordContext } from '../context/KeywordContext';
 
 export default function KeywordSearchScreen() {
-  const { loading, error, lastResult, history, favorites, searchKeyword, toggleFavorite, exportResult } =
-    useKeywordContext();
+  const {
+    loading,
+    error,
+    lastResult,
+    history,
+    favorites,
+    searchesRemaining,
+    adLoading,
+    searchKeyword,
+    toggleFavorite,
+    exportResult,
+    requestRewarded,
+  } = useKeywordContext();
   const [seed, setSeed] = useState('seo keyword research');
   const [bootstrapped, setBootstrapped] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -61,7 +72,23 @@ export default function KeywordSearchScreen() {
         contentContainerStyle={styles.container}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
-        <KeywordInput value={seed} onChange={setSeed} onSubmit={() => runSearch()} />
+        <KeywordInput
+          value={seed}
+          onChange={setSeed}
+          onSubmit={() => runSearch()}
+          accessory={
+            <View style={styles.quotaRow}>
+              <View style={styles.quotaPill}>
+                <Text style={styles.quotaText}>{searchesRemaining} searches left</Text>
+              </View>
+              {searchesRemaining === 0 ? (
+                <Text style={styles.watchAd} onPress={requestRewarded}>
+                  {adLoading ? 'Loading ad…' : 'Watch a short ad to unlock 2 more'}
+                </Text>
+              ) : null}
+            </View>
+          }
+        />
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
         {loading ? (
@@ -143,287 +170,101 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   container: {
     padding: 16,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#0f172a',
     gap: 16,
   },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 20,
+    padding: 20,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
-    gap: 8,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    gap: 12,
+    shadowColor: '#0f172a',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
   },
   loading: {
-    padding: 16,
+    padding: 24,
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
-    gap: 8,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    gap: 16,
+    shadowColor: '#0f172a',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
   },
   loadingText: {
-    color: '#0f172a',
-    fontWeight: '600',
+    color: '#e2e8f0',
+    fontWeight: '500',
+    fontSize: 15,
   },
   error: {
-    color: '#ef4444',
-    fontWeight: '700',
+    color: '#ff6b6b',
+    fontWeight: '600',
+    backgroundColor: 'rgba(255, 107, 107, 0.1)',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderLeftWidth: 3,
+    borderLeftColor: '#ff6b6b',
   },
   actions: {
-    gap: 12,
+    gap: 14,
+    marginTop: 8,
   },
   actionRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    gap: 12,
   },
   link: {
-    color: '#2563eb',
-    fontWeight: '700',
+    color: '#00d9ff',
+    fontWeight: '600',
+    fontSize: 14,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
   },
   pill: {
-    backgroundColor: '#e0f2fe',
-    padding: 10,
-    borderRadius: 10,
+    backgroundColor: 'rgba(0, 217, 255, 0.1)',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 217, 255, 0.3)',
   },
   pillText: {
-    color: '#0f172a',
-// Main Keyword Research Screen
-
-import React, { useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  Alert,
-  TouchableOpacity,
-  ScrollView,
-  Platform,
-} from 'react-native';
-import { useAppStore } from '../store/appStore';
-import { KeywordSearchInput } from '../components/KeywordSearchInput';
-import { KeywordResults } from '../components/KeywordResults';
-import { ApiSelector } from '../components/ApiSelector';
-
-export const KeywordSearchScreen: React.FC = () => {
-  const {
-    currentAnalysis,
-    loading,
-    error,
-    selectedApi,
-    searchKeyword,
-    setSelectedApi,
-    loadSearchHistory,
-    exportToCSV,
-    clearError,
-    searches,
-  } = useAppStore();
-
-  useEffect(() => {
-    loadSearchHistory();
-  }, []);
-
-  useEffect(() => {
-    if (error) {
-      if (Platform.OS === 'web') {
-        alert(error);
-      } else {
-        Alert.alert('Error', error);
-      }
-      clearError();
-    }
-  }, [error]);
-
-  const handleExport = async () => {
-    try {
-      const csv = await exportToCSV();
-      
-      if (Platform.OS === 'web') {
-        // Create download link for web
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `keyword-research-${Date.now()}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-        alert('CSV exported successfully!');
-      } else {
-        // For mobile, we'd need to use a file system library
-        // For now, just show the data
-        Alert.alert('CSV Export', csv, [{ text: 'OK' }]);
-      }
-    } catch (error: any) {
-      if (Platform.OS === 'web') {
-        alert(error.message || 'Failed to export');
-      } else {
-        Alert.alert('Export Error', error.message || 'Failed to export');
-      }
-    }
-  };
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView 
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>SEO Keyword Research</Text>
-          <Text style={styles.subtitle}>
-            Analyze search volume, competition, and trends
-          </Text>
-        </View>
-
-        {/* API Selector */}
-        <ApiSelector
-          selectedApi={selectedApi}
-          onSelect={setSelectedApi}
-        />
-
-        {/* Search Input */}
-        <KeywordSearchInput
-          onSearch={searchKeyword}
-          loading={loading}
-        />
-
-        {/* Export Button */}
-        {searches.length > 0 && (
-          <TouchableOpacity
-            style={styles.exportButton}
-            onPress={handleExport}
-          >
-            <Text style={styles.exportButtonText}>
-              Export History to CSV ({searches.length})
-            </Text>
-          </TouchableOpacity>
-        )}
-
-        {/* Loading State */}
-        {loading && !currentAnalysis && (
-          <View style={styles.loadingContainer}>
-            <Text style={styles.loadingText}>Analyzing keyword...</Text>
-          </View>
-        )}
-
-        {/* Results */}
-        {currentAnalysis && !loading && (
-          <KeywordResults analysis={currentAnalysis} />
-        )}
-
-        {/* Empty State */}
-        {!currentAnalysis && !loading && (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyStateTitle}>
-              Start Your Research
-            </Text>
-            <Text style={styles.emptyStateText}>
-              Enter a keyword above to analyze its search volume, competition,
-              and trends. Get AI-powered suggestions for related keywords.
-            </Text>
-            <View style={styles.featuresList}>
-              <Text style={styles.featureItem}>
-                • Real-time search volume data
-              </Text>
-              <Text style={styles.featureItem}>
-                • Competition analysis
-              </Text>
-              <Text style={styles.featureItem}>
-                • 30-day trend visualization
-              </Text>
-              <Text style={styles.featureItem}>
-                • Related keyword suggestions
-              </Text>
-              <Text style={styles.featureItem}>
-                • CSV export for reports
-              </Text>
-            </View>
-          </View>
-        )}
-      </ScrollView>
-    </SafeAreaView>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
+    color: '#00d9ff',
+    fontSize: 13,
+    fontWeight: '500',
   },
-  scrollView: {
-    flex: 1,
+  quotaRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 8,
   },
-  scrollContent: {
-    padding: 16,
+  quotaPill: {
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
   },
-  header: {
-    marginBottom: 24,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-  },
-  exportButton: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  exportButtonText: {
-    color: '#fff',
-    fontSize: 14,
+  quotaText: {
+    color: '#e2e8f0',
     fontWeight: '600',
-    textAlign: 'center',
+    fontSize: 13,
   },
-  loadingContainer: {
-    backgroundColor: '#fff',
-    padding: 32,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  loadingText: {
-    fontSize: 16,
-    color: '#666',
-    marginTop: 16,
-  },
-  emptyState: {
-    backgroundColor: '#fff',
-    padding: 32,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  emptyStateTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 12,
-  },
-  emptyStateText: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 24,
-    lineHeight: 24,
-  },
-  featuresList: {
-    alignSelf: 'stretch',
-  },
-  featureItem: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 8,
-    lineHeight: 20,
+  watchAd: {
+    color: '#00d9ff',
+    fontWeight: '600',
+    fontSize: 12,
+    flexShrink: 1,
   },
 });

@@ -20,18 +20,24 @@ export default function SuggestionChips({ suggestions, onSelect }: Props) {
 
 const styles = StyleSheet.create({
   row: {
-    gap: 8,
+    gap: 10,
+    paddingVertical: 4,
   },
   chip: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     borderRadius: 999,
-    backgroundColor: '#e0f2fe',
-    borderColor: '#bfdbfe',
-    borderWidth: 1,
+    backgroundColor: 'rgba(0, 217, 255, 0.12)',
+    borderColor: 'rgba(0, 217, 255, 0.3)',
+    borderWidth: 1.5,
+    shadowColor: '#00d9ff',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
   },
   text: {
-    color: '#0f172a',
+    color: '#00d9ff',
     fontWeight: '600',
+    fontSize: 14,
   },
 });

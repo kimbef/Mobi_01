@@ -21,18 +21,22 @@ export default function Section({ title, subtitle, children }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
+    marginBottom: 20,
   },
   header: {
-    marginBottom: 8,
-    gap: 2,
+    marginBottom: 14,
+    gap: 6,
   },
   title: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '700',
-    color: '#0f172a',
+    color: '#e2e8f0',
+    letterSpacing: 0.2,
   },
   subtitle: {
-    color: '#475569',
+    color: '#94a3b8',
+    fontSize: 14,
+    fontWeight: '400',
+    lineHeight: 18,
   },
 });

@@ -37,11 +37,12 @@ export default function FavoritesScreen() {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#0f172a',
     flexGrow: 1,
   },
   info: {
-    color: '#2563eb',
+    color: '#00d9ff',
     fontWeight: '700',
+    fontSize: 14,
   },
 });

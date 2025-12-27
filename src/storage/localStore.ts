@@ -3,8 +3,10 @@ import { KeywordAnalysis, SearchHistoryEntry } from '../types';
 
 const HISTORY_KEY = 'keyword_history';
 const FAVORITES_KEY = 'keyword_favorites';
+const QUOTA_KEY = 'keyword_quota';
 export const HISTORY_LIMIT = 20;
 export const FAVORITES_LIMIT = 25;
+export const DEFAULT_QUOTA = 2;
 
 export async function loadHistory(): Promise<SearchHistoryEntry[]> {
   const raw = await AsyncStorage.getItem(HISTORY_KEY);
@@ -49,4 +51,20 @@ export async function clearHistory() {
 
 export async function clearFavorites() {
   await AsyncStorage.removeItem(FAVORITES_KEY);
+}
+
+export async function loadQuota(): Promise<number> {
+  const raw = await AsyncStorage.getItem(QUOTA_KEY);
+  if (!raw) return DEFAULT_QUOTA;
+  const value = Number(raw);
+  if (Number.isNaN(value) || value < 0) return DEFAULT_QUOTA;
+  return value;
+}
+
+export async function persistQuota(quota: number) {
+  await AsyncStorage.setItem(QUOTA_KEY, String(Math.max(0, quota)));
+}
+
+export async function clearQuota() {
+  await AsyncStorage.removeItem(QUOTA_KEY);
 }

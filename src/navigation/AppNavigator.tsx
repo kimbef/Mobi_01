@@ -15,14 +15,29 @@ function FavoritesButton() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   return (
     <Pressable onPress={() => navigation.navigate('Favorites')}>
-      <Text style={{ color: '#2563eb', fontWeight: '600' }}>Favorites</Text>
+      <Text style={{ color: '#00d9ff', fontWeight: '600', fontSize: 15 }}>Favorites</Text>
     </Pressable>
   );
 }
 
 export default function AppNavigator() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#0f172a',
+          borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+          borderBottomWidth: 1,
+        },
+        headerTintColor: '#00d9ff',
+        headerTitleStyle: {
+          fontWeight: '700',
+          fontSize: 18,
+          color: '#e2e8f0',
+          letterSpacing: 0.2,
+        },
+      }}
+    >
       <Stack.Screen
         name="Home"
         component={KeywordSearchScreen}
