@@ -1,5 +1,8 @@
 // Rate limiter utility for API requests
 
+const DEFAULT_DELAY = 1000; // 1 second between requests
+const DEFAULT_MAX_REQUESTS_PER_MINUTE = 60;
+
 class RateLimiter {
   private queue: Array<() => void> = [];
   private processing = false;
@@ -8,7 +11,7 @@ class RateLimiter {
   private delay: number;
   private maxRequestsPerMinute: number;
 
-  constructor(delay: number = 1000, maxRequestsPerMinute: number = 60) {
+  constructor(delay: number = DEFAULT_DELAY, maxRequestsPerMinute: number = DEFAULT_MAX_REQUESTS_PER_MINUTE) {
     this.delay = delay;
     this.maxRequestsPerMinute = maxRequestsPerMinute;
   }

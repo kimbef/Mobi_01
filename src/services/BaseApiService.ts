@@ -39,4 +39,5 @@ export abstract class BaseApiService {
   abstract searchKeyword(keyword: string): Promise<KeywordAnalysis>;
   abstract getTrends(keyword: string, days?: number): Promise<TrendData[]>;
   abstract getSuggestions(keyword: string): Promise<string[]>;
+  abstract generateAiKeywords(seed: string, count?: number): Promise<string[]>;
 }

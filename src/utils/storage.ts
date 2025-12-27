@@ -9,6 +9,9 @@ const STORAGE_KEYS = {
   CACHE: '@keyword_research:cache',
 };
 
+const MAX_HISTORY_SIZE = 50;
+const CACHE_DURATION_MS = 3600000; // 1 hour
+
 export const storage = {
   // Search History
   async getSearchHistory(): Promise<SearchHistory[]> {
@@ -34,7 +37,7 @@ export const storage = {
 
   async addToSearchHistory(item: SearchHistory): Promise<void> {
     const history = await this.getSearchHistory();
-    const newHistory = [item, ...history.slice(0, 49)]; // Keep last 50
+    const newHistory = [item, ...history.slice(0, MAX_HISTORY_SIZE - 1)]; // Keep last 50
     await this.saveSearchHistory(newHistory);
   },
 
@@ -65,7 +68,7 @@ export const storage = {
         const { data, timestamp } = JSON.parse(cache);
         const now = Date.now();
         // Cache valid for 1 hour
-        if (now - timestamp < 3600000) {
+        if (now - timestamp < CACHE_DURATION_MS) {
           return data;
         }
       }

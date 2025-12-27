@@ -140,8 +140,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
     try {
       const api = getApiService(get().selectedApi);
-      // Type cast to access the generateAiKeywords method
-      const keywords = await (api as any).generateAiKeywords(seed, 10);
+      const keywords = await api.generateAiKeywords(seed, 10);
       set({ loading: false });
       return keywords;
     } catch (error: any) {
